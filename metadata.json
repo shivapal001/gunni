@@ -1,0 +1,6 @@
+{
+  "name": "For Guniii ❤️",
+  "description": "A special proposal application for Guniii with her favorite song and interactive elements.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
