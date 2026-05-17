@@ -98,24 +98,31 @@ export default function App() {
     setNoButtonPos({ x, y });
   };
 
+  const [audioError, setAudioError] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
 
   const toggleMusic = () => {
-    if (audioRef.current) {
+    if (audioRef.current && !audioError) {
       if (isPlaying) {
         audioRef.current.pause();
       } else {
-        audioRef.current.play().catch(err => console.log("Audio play blocked:", err));
+        audioRef.current.play().catch(err => {
+          console.log("Audio play blocked:", err);
+          setAudioError(true);
+        });
       }
     }
     setIsPlaying(!isPlaying);
   };
 
   useEffect(() => {
-    if (hasEntered && audioRef.current) {
-      audioRef.current.play().catch(err => console.log("Autoplay failed:", err));
+    if (hasEntered && audioRef.current && !audioError) {
+      audioRef.current.play().catch(err => {
+        console.log("Autoplay failed:", err);
+        // We don't set error here because it might just be an autoplay policy issue
+      });
     }
-  }, [hasEntered]);
+  }, [hasEntered, audioError]);
 
   return (
     <div 
@@ -127,7 +134,23 @@ export default function App() {
         ref={audioRef}
         src="/ambarsariya.mp3" 
         loop
+        onError={() => {
+          console.log("Local audio file not found, using fallback");
+          setAudioError(true);
+        }}
       />
+
+      {/* YouTube Fallback Audio (Plays if local file fails) */}
+      {hasEntered && isPlaying && audioError && (
+        <div className="fixed -left-999 top-0 opacity-0 pointer-events-none">
+          <iframe 
+            width="0" 
+            height="0" 
+            src="https://www.youtube.com/embed/0z8H10_1Q9Y?autoplay=1&loop=1&playlist=0z8H10_1Q9Y" 
+            allow="autoplay"
+          ></iframe>
+        </div>
+      )}
 
       <AnimatePresence mode="wait">
         {!hasEntered ? (
